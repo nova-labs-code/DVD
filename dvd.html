@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>DVD Bouncer</title>
+
+<style>
+html, body {
+  margin: 0;
+  overflow: hidden;
+  background: black;
+}
+
+#logo {
+  position: fixed;
+  width: 140px;
+  top: 0;
+  left: 0;
+  user-select: none;
+  will-change: transform;
+}
+</style>
+</head>
+
+<body>
+
+<img id="logo" src="logo.png">
+
+<script>
+const logo = document.getElementById("logo");
+
+let x = 120;
+let y = 120;
+let dx = 3;
+let dy = 2;
+
+let dvdMode = false;
+let hue = 0;
+
+// 🎨 ALWAYS rebuild filter from scratch
+function updateFilter() {
+  if (!dvdMode) {
+    logo.style.filter = "none";
+    return;
+  }
+
+  logo.style.filter = `
+    brightness(2)
+    saturate(2)
+    hue-rotate(${hue}deg)
+  `;
+}
+
+// 🎲 random color on bounce
+function randomColor() {
+  hue = Math.floor(Math.random() * 360);
+  updateFilter();
+}
+
+// 🎮 toggle DVD mode
+window.addEventListener("keydown", (e) => {
+  if (e.key.toLowerCase() === "e") {
+    dvdMode = !dvdMode;
+
+    if (dvdMode) {
+      logo.src = "DVD.png";
+      hue = 0; // true white start
+    } else {
+      logo.src = "logo.png";
+    }
+
+    updateFilter();
+  }
+});
+
+function loop() {
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+
+  const rect = logo.getBoundingClientRect();
+  const w = rect.width;
+  const h = rect.height;
+
+  x += dx;
+  y += dy;
+
+  let hit = false;
+
+  if (x + w >= vw) {
+    x = vw - w;
+    dx = -Math.abs(dx);
+    hit = true;
+  }
+
+  if (x <= 0) {
+    x = 0;
+    dx = Math.abs(dx);
+    hit = true;
+  }
+
+  if (y + h >= vh) {
+    y = vh - h;
+    dy = -Math.abs(dy);
+    hit = true;
+  }
+
+  if (y <= 0) {
+    y = 0;
+    dy = Math.abs(dy);
+    hit = true;
+  }
+
+  if (dvdMode && hit) {
+    randomColor();
+  }
+
+  logo.style.transform = `translate(${x}px, ${y}px)`;
+
+  requestAnimationFrame(loop);
+}
+
+loop();
+</script>
+
+</body>
+</html>
