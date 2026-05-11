@@ -35,41 +35,42 @@ let dx = 3;
 let dy = 2;
 
 let dvdMode = false;
-let hue = 0;
 
-// 🎨 ALWAYS rebuild filter from scratch
-function updateFilter() {
-  if (!dvdMode) {
-    logo.style.filter = "none";
-    return;
+// 🎞️ DVD images
+const dvdImages = [
+  "DVD1.png",
+  "DVD2.png",
+  "DVD3.png",
+  "DVD4.png",
+  "DVD5.png"
+];
+
+let currentIndex = 0;
+
+// 🎲 always pick a NEW image (never the same twice in a row)
+function nextDVD() {
+  let newIndex = currentIndex;
+
+  // keep rolling until it's different
+  while (newIndex === currentIndex) {
+    newIndex = Math.floor(Math.random() * dvdImages.length);
   }
 
-  logo.style.filter = `
-    brightness(2)
-    saturate(2)
-    hue-rotate(${hue}deg)
-  `;
+  currentIndex = newIndex;
+  logo.src = dvdImages[currentIndex];
 }
 
-// 🎲 random color on bounce
-function randomColor() {
-  hue = Math.floor(Math.random() * 360);
-  updateFilter();
-}
-
-// 🎮 toggle DVD mode
+// 🎮 toggle mode
 window.addEventListener("keydown", (e) => {
   if (e.key.toLowerCase() === "e") {
     dvdMode = !dvdMode;
 
     if (dvdMode) {
-      logo.src = "DVD.png";
-      hue = 0; // true white start
+      currentIndex = 0;
+      logo.src = dvdImages[currentIndex];
     } else {
       logo.src = "logo.png";
     }
-
-    updateFilter();
   }
 });
 
@@ -86,6 +87,7 @@ function loop() {
 
   let hit = false;
 
+  // wall bounce logic 🧱
   if (x + w >= vw) {
     x = vw - w;
     dx = -Math.abs(dx);
@@ -110,8 +112,9 @@ function loop() {
     hit = true;
   }
 
+  // 🎯 guaranteed change every bounce
   if (dvdMode && hit) {
-    randomColor();
+    nextDVD();
   }
 
   logo.style.transform = `translate(${x}px, ${y}px)`;
